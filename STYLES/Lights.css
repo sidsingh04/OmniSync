@@ -1,0 +1,62 @@
+/* Container for the lights */
+#connection-lights-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 0 15px;
+    border-right: 1px solid var(--border-color, #e0e0e0);
+    margin-right: 15px;
+}
+
+/* Individual light wrapper */
+.connection-light {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.connection-light.active {
+    opacity: 1;
+    color: var(--text-primary, #333);
+}
+
+/* The circular indicator */
+.light-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ccc;
+    /* Default / Inactive */
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Status colors */
+.connection-light.active .light-indicator {
+    background-color: #4caf50;
+    /* Green */
+    box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+}
+
+.connection-light.inactive .light-indicator {
+    background-color: #f44336;
+    /* Red */
+    box-shadow: 0 0 2px rgba(244, 67, 54, 0.4);
+}
+
+.connection-light.error .light-indicator {
+    background-color: #ff9800;
+    /* Orange/Yellow for error or warning if we use it */
+}
+
+/* Label text styles */
+.light-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}

@@ -1,0 +1,234 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 20px;
+}
+
+.login-container {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 420px;
+    overflow: hidden;
+}
+
+.login-header {
+    padding: 30px 30px 20px;
+    text-align: center;
+}
+
+.login-header h1 {
+    font-size: 1.8rem;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Mode Switcher */
+.mode-switcher {
+    display: flex;
+    margin: 0 30px;
+    background: #f0f2f5;
+    border-radius: 12px;
+    padding: 5px;
+    position: relative;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.mode-btn.active {
+    color: #fff;
+}
+
+.mode-slider {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: calc(50% - 5px);
+    height: calc(100% - 10px);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.mode-slider.agent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.mode-slider.supervisor {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    transform: translateX(100%);
+}
+
+/* Login Form */
+.login-form {
+    padding: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input.supervisor-focus:focus {
+    border-color: #11998e;
+    box-shadow: 0 0 0 4px rgba(17, 153, 142, 0.1);
+}
+
+.error-message {
+    color: #ff3333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    min-height: 20px;
+}
+
+.sign-in-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.sign-in-btn.agent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.sign-in-btn.supervisor {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.sign-in-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.sign-in-btn:active {
+    transform: translateY(0);
+}
+
+/* Role Indicator */
+.role-indicator {
+    text-align: center;
+    padding: 15px;
+    background: #f8f9fa;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.role-indicator span {
+    font-weight: 600;
+}
+
+.role-indicator span.agent {
+    color: #667eea;
+}
+
+.role-indicator span.supervisor {
+    color: #11998e;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .login-container {
+        border-radius: 16px;
+    }
+
+    .login-header {
+        padding: 25px 25px 15px;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .mode-switcher {
+        margin: 0 20px;
+    }
+
+    .mode-btn {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+
+    .login-form {
+        padding: 25px 20px;
+    }
+
+    .form-group input {
+        padding: 12px 14px;
+    }
+
+    .sign-in-btn {
+        padding: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    body {
+        padding: 10px;
+    }
+
+    .login-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .mode-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+}

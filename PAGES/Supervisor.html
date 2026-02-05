@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard - OmniSync</title>
+    <!-- Base Styles -->
+    <link rel="stylesheet" href="../STYLES/Supervisor.css">
+    <!-- Tab-specific Styles -->
+    <link rel="stylesheet" href="../STYLES/Tickets.css">
+    <link rel="stylesheet" href="../STYLES/Agents.css">
+    <link rel="stylesheet" href="../STYLES/Analytics.css">
+    <link rel="stylesheet" href="../STYLES/SyncBadge.css">
+    <link rel="stylesheet" href="../STYLES/Lights.css">
+</head>
+
+<body data-page="Supervisor">
+    <!-- Top Spacer (5%) -->
+    <div class="top-spacer"></div>
+
+    <!-- Header with Tabs and Sign Out -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h3 class="logo"></h3>
+                <span class="role-badge">Supervisor</span>
+            </div>
+
+            <nav class="tab-navigation">
+                <button class="tab-btn active" data-tab="tickets">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Tickets
+                </button>
+                <button class="tab-btn" data-tab="agents">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+                    </svg>
+                    Agents
+                </button>
+                <button class="tab-btn" data-tab="analytics">
+                    <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 20V10M12 20V4M6 20v-6" />
+                    </svg>
+                    Analytics
+                </button>
+            </nav>
+
+            <div class="header-actions-group" style="display: flex; align-items: center; gap: 10px;">
+                <div id="connection-lights-container"></div>
+
+                <button class="sign-out-btn" id="signOutBtn" data-action="supervisor-logout">
+                    <svg class="sign-out-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                    Sign Out
+                </button>
+                <div id="syncbadge" class="sync-badge syncing">Syncing...</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Tickets Tab Content -->
+        <div class="tab-content active" id="tickets-content">
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="create-ticket-btn" id="createTicketBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Create Ticket
+                </button>
+            </div>
+            <div class="tickets-container">
+                <!-- Pending Tickets Section -->
+                <section class="panel pending-tickets">
+                    <div class="panel-header">
+                        <h2>Pending Tickets</h2>
+                        <span class="count-badge" id="pendingCount">0</span>
+                    </div>
+                    <div class="panel-body" id="pendingTicketsList">
+                        <!-- Tickets will be dynamically loaded -->
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p>No pending tickets</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Approval Window Section -->
+                <section class="panel approval-window">
+                    <div class="panel-header">
+                        <h2>Approval Window</h2>
+                        <span class="count-badge warning" id="approvalCount">0</span>
+                    </div>
+                    <div class="panel-body" id="approvalList">
+                        <!-- Approval items will be dynamically loaded -->
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>No items pending approval</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Notifications Section -->
+                <section class="panel notifications">
+                    <div class="panel-header">
+                        <h2>Notifications</h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span
+                                style="font-size: 0.8em; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"
+                                onclick="initTicketTabNotifications()">Clear</span>
+                            <span class="count-badge info" id="notificationCount">0</span>
+                        </div>
+                    </div>
+                    <div class="panel-body" id="notificationsList">
+                        <!-- Notifications will be dynamically loaded -->
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <p>No new notifications</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Agents Tab Content -->
+        <div class="tab-content" id="agents-content">
+            <!-- Agent Metrics Cards -->
+            <div class="agent-metrics">
+                <div class="metric-card total">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+                        </svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-value" id="totalAgentsCount">0</span>
+                        <span class="metric-label">Total Agents</span>
+                    </div>
+                </div>
+                <div class="metric-card active">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                            <polyline points="22,4 12,14.01 9,11.01" />
+                        </svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-value" id="activeAgentsCount">0</span>
+                        <span class="metric-label">Available Agents</span>
+                    </div>
+                </div>
+                <div class="metric-card break">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12,6 12,12 16,14" />
+                        </svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-value" id="breakAgentsCount">0</span>
+                        <span class="metric-label">On Break</span>
+                    </div>
+                </div>
+                <div class="metric-card offline">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-value" id="offlineAgentsCount">0</span>
+                        <span class="metric-label">Offline</span>
+                    </div>
+                </div>
+                <div class="metric-card busy">
+                    <div class="metric-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                    </div>
+                    <div class="metric-info">
+                        <span class="metric-value" id="busyAgentsCount">0</span>
+                        <span class="metric-label">Busy</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="agent-search-bar">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                    <input type="text" id="agentSearchInput" placeholder="Search agents by name, ID, or status..."
+                        autocomplete="off">
+                    <button class="search-clear" id="clearAgentSearch" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="agents-layout">
+                <!-- Left Column - Status Updates (smaller) -->
+                <aside class="status-updates-panel">
+                    <div class="panel-header">
+                        <h2>Status Updates</h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span
+                                style="font-size: 0.8em; color: var(--text-secondary); cursor: pointer; text-decoration: underline;"
+                                onclick="initStatusUpdates()">Clear</span>
+                            <span class="count-badge info" id="statusUpdateCount">0</span>
+                        </div>
+                    </div>
+                    <div class="panel-body" id="statusUpdatesList">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p>No recent status updates</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Right Column - Agents List (larger) -->
+                <section class="agents-list-panel">
+                    <div class="panel-header">
+                        <h2>All Agents</h2>
+
+                    </div>
+                    <div class="agents-table-wrapper">
+                        <table class="agents-table">
+                            <thead>
+                                <tr>
+                                    <th>Agent</th>
+                                    <th>ID</th>
+                                    <th>Status</th>
+                                    <th>Pending Tickets</th>
+                                    <th>Resolved Tickets</th>
+                                    <th>Pending Approvals</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentsTableBody">
+                                <!-- Agents will be dynamically loaded -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="noAgentsFound" style="display: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" />
+                            </svg>
+                            <p>No agents found</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Analytics Tab Content -->
+        <div class="tab-content" id="analytics-content">
+            <!-- Analytics Dashboard will be rendered here by AnalyticsTab.js -->
+            <div class="analytics-loading">Loading Analytics...</div>
+        </div>
+    </main>
+
+    <!-- Create Ticket Modal -->
+    <div class="modal-overlay" id="createTicketModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Create New Ticket</h2>
+                <button class="modal-close" id="closeModalBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form class="modal-body" id="createTicketForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ticketTypeIssue">Type-Issue <span class="required">*</span></label>
+                        <select id="ticketTypeIssue" name="typeIssue" required>
+                            <option value="">Select issue type</option>
+                            <option value="technical">Technical Issue</option>
+                            <option value="billing">Billing Issue</option>
+                            <option value="account">Account Issue</option>
+                            <option value="service">Service Issue</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ticketDescription">Description <span class="required">*</span></label>
+                        <textarea id="ticketDescription" name="description" rows="4"
+                            placeholder="Provide detailed information about the issue..." required></textarea>
+                    </div>
+                </div>
+
+                <!-- Call Duration Field Removed -->
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="assignAgent">Agent Assign <span class="required">*</span></label>
+                        <div class="agent-search-wrapper">
+                            <input type="text" id="ticketAgentSearchInput" name="agentSearch"
+                                placeholder="Search agent by ID..." autocomplete="off">
+                            <div class="agent-search-results" id="agentSearchResults" style="display: none;"></div>
+                            <input type="hidden" id="selectedAgentId" name="assignAgent">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ticketStatus">Status</label>
+                        <input type="text" id="ticketStatus" name="status" value="pending" readonly
+                            style="background-color: var(--bg-secondary); cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <!-- File upload -->
+                <!-- <div class="form-row">
+                    <div class="form-group">
+                        <label for="callRecordingPhoto">Call Recording/Photo</label>
+                        <div class="file-upload">
+                            <input type="file" id="callRecordingPhoto" name="callRecordingPhoto"
+                                accept="image/*,audio/*,video/*">
+                            <div class="file-upload-label">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                                </svg>
+                                <span>Choose file</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" id="cancelTicketBtn">Cancel</button>
+                    <button type="submit" class="btn btn-create">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        Raise Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Agent Details Modal -->
+    <div class="modal-overlay" id="agentDetailsModal">
+        <div class="modal agent-modal">
+            <div class="modal-header agent-header">
+                <div class="agent-modal-title">
+                    <div class="agent-avatar-large" id="modalAgentAvatar">JD</div>
+                    <div class="agent-modal-info">
+                        <h2 id="modalAgentName">Agent Name</h2>
+                        <span class="agent-id-badge" id="modalAgentId">AGT-001</span>
+                    </div>
+                </div>
+                <button class="modal-close" id="closeAgentModalBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body agent-details-body">
+                <!-- Status Section -->
+                <div class="agent-detail-section">
+                    <h3>Current Status</h3>
+                    <div class="agent-status-display">
+                        <span class="status-indicator" id="modalAgentStatus">Active</span>
+                        <span class="status-since" id="modalStatusSince">Since 9:00 AM</span>
+                    </div>
+                </div>
+
+                <!-- Performance Stats -->
+                <div class="agent-detail-section">
+                    <h3>Performance & Metrics</h3>
+                    <div class="performance-stats">
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalActiveTickets">0</span>
+                            <span class="perf-label">Total Pending</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalResolvedToday">0</span>
+                            <span class="perf-label">Total Resolved</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalCallDuration">0m</span>
+                            <span class="perf-label">Total Call Duration</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalSuccessfullCalls">0</span>
+                            <span class="perf-label">Total Successfull Calls</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalFailedCalls">0</span>
+                            <span class="perf-label">Total Failed Calls</span>
+                        </div>
+                        <div class="perf-stat">
+                            <span class="perf-value" id="modalSuccessRate">0%</span>
+                            <span class="perf-label">Call Success Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeAgentDetailsBtn">Close</button>
+                <button type="button" class="btn btn-danger" id="forceLogoutBtn">Force Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="attachmentViewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="attachmentTitle">Attachment Viewer</h2>
+                <button class="modal-close" id="closeAttachmentModalBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="attachmentModalBody"
+                style="display: flex; justify-content: center; align-items: center; min-height: 200px;">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="../SCRIPTS/GlobalEvents.js"></script>
+    <script type="module" src="../SCRIPTS/SUPERVISOR/Supervisor.js"></script>
+    <script type="module" src="../SCRIPTS/SUPERVISOR/AnalyticsTab.js"></script>
+</body>
+
+</html>

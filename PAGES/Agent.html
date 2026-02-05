@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Dashboard - OmniSync</title>
+    <link rel="stylesheet" href="../STYLES/Agent.css">
+    <link rel="stylesheet" href="../STYLES/SyncBadge.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body data-page='agent'>
+    <div class="agent-dashboard">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="agent-info">
+                <div class="agent-avatar">
+                    <span id="agentInitials">AG</span>
+                </div>
+                <div class="agent-details">
+                    <span id="agentName" class="agent-name">Loading...</span>
+                    <span id="agentId" class="agent-id">ID: ...</span>
+                </div>
+            </div>
+
+            <div class="agent-status-control">
+                <span class="status-label">Status:</span>
+                <span id="agentStatusText" class="status-text">Available</span>
+            </div>
+
+            <button id="breakBtn" class="btn-break"
+                style="margin-right: 10px; padding: 8px 16px; background-color: #f39c12; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-coffee"></i> Take Break
+            </button>
+
+            <div class="header-actions-group" style="display: flex; align-items: center; gap: 10px;">
+                <button id="signOutBtn" class="btn-signout">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+                <div id="syncbadge" class="sync-badge syncing">Syncing...</div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Left Side: Tabs & Content -->
+            <div class="content-area">
+                <!-- Search Bar -->
+                <div class="search-bar-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="ticketSearchInput" placeholder="Search tickets by ID,subject"
+                        class="search-input">
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="pending">
+                        Pending Tickets <span id="pendingCount" class="badge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="activity">
+                        Activity & History
+                    </button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tab-content-container">
+                    <!-- Pending Tickets Tab -->
+                    <div id="pendingTab" class="tab-pane active">
+                        <div class="tickets-list" id="pendingTicketsList">
+                            <!-- Pending tickets will be rendered here -->
+                            <div class="empty-state">Loading tickets...</div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Tab (Approvals, History, Analytics) -->
+                    <div id="activityTab" class="tab-pane">
+
+                        <!-- Analytics Section -->
+                        <div class="analytics-row">
+                            <div class="stat-card">
+                                <div class="stat-icon resolved"><i class="fas fa-check-circle"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="resolvedCount">0</span>
+                                    <span class="stat-label">Resolved Tickets</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon pending"><i class="fas fa-clock"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-value" id="totalPendingCount">0</span>
+                                    <span class="stat-label">Pending Tickets</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Approvals Section -->
+                        <div class="section-header">
+                            <h3>Approvals Sent to Supervisor</h3>
+                        </div>
+                        <div class="approvals-list" id="approvalsList">
+                            <!-- Approvals will be rendered here -->
+                            <div class="empty-state">No pending approvals</div>
+                        </div>
+
+                        <!-- History Section -->
+                        <div class="section-header">
+                            <h3>Ticket History</h3>
+                        </div>
+                        <div class="history-list" id="historyList">
+                            <!-- History will be rendered here -->
+                            <div class="empty-state">No history available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Notifications -->
+            <aside class="notifications-sidebar">
+                <div class="sidebar-header">
+                    <h3>Notifications</h3>
+                    <button id="clearNotifications" class="btn-text">Clear All</button>
+                </div>
+                <div class="notifications-list" id="notificationsList">
+                    <!-- Notifications will be rendered here -->
+                    <div class="empty-state">No new notifications</div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ticket Details</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="ticket-info-group">
+                    <span class="info-label">Ticket ID:</span>
+                    <span id="modalTicketId" class="info-value">...</span>
+                </div>
+                <div class="ticket-info-group">
+                    <span class="info-label">Issue:</span>
+                    <span id="modalTicketIssue" class="info-value">...</span>
+                </div>
+                <div class="ticket-info-group full-width">
+                    <span class="info-label">Description:</span>
+                    <p id="modalTicketDesc" class="info-value description-text">...</p>
+                </div>
+
+                <hr class="modal-divider">
+
+                <div class="form-group">
+                    <label for="ticketRemarks">Agent Remarks</label>
+                    <textarea id="ticketRemarks" class="modal-input"
+                        placeholder="Enter resolution details or remarks..." rows="4"></textarea>
+                </div>
+                <label for="ticketCallDuration">Call Duration (minutes)</label>
+                <input type="number" id="ticketCallDuration" class="modal-input" min="0" placeholder="e.g. 15">
+            </div>
+            <div class="form-group">
+                <label for="approvalAttachment">Attachment (Image/Audio)</label>
+                <input type="file" id="approvalAttachment" class="modal-input" accept="image/*,audio/*">
+                <div id="attachmentPreview" class="attachment-preview" style="margin-top: 10px; display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeModalBtn" class="btn-secondary">Close</button>
+                <button id="sendApprovalBtn" class="btn-primary">Send for Approval</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../SCRIPTS/AGENT/AgentInit.js"></script>
+</body>
+
+</html>

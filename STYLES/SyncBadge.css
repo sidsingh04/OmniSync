@@ -1,0 +1,62 @@
+/* Sync Badge Styles */
+.sync-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 80px;
+}
+
+/* Status: Syncing (Loading/Connecting) */
+.sync-badge.syncing {
+    background-color: #fef3c7;
+    /* amber-100 */
+    color: #d97706;
+    /* amber-600 */
+    border: 1px solid #fcd34d;
+    /* amber-300 */
+    animation: pulse 2s infinite;
+}
+
+/* Status: Synced (Live) */
+.sync-badge.synced {
+    background-color: #dcfce7;
+    /* green-100 */
+    color: #16a34a;
+    /* green-600 */
+    border: 1px solid #86efac;
+    /* green-300 */
+}
+
+/* Status: Offline (Disconnected) */
+.sync-badge.offline {
+    background-color: #f3f4f6;
+    /* gray-100 */
+    color: #6b7280;
+    /* gray-500 */
+    border: 1px solid #d1d5db;
+    /* gray-300 */
+}
+
+/* Pulse Animation for Syncing state */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

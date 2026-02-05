@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Portal - OmniSync</title>
+    <link rel="stylesheet" href="../STYLES/Login.css">
+</head>
+
+<body data-page="Login">
+    <div class="login-container">
+        <div class="login-header">
+            <h1>OmniSync Portal</h1>
+            <p>Sign in to your account</p>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="mode-switcher">
+            <div class="mode-slider agent" id="modeSlider"></div>
+            <button class="mode-btn active" id="agentBtn" data-click="switch-mode">Agent</button>
+            <button class="mode-btn" id="supervisorBtn" data-click="switch-mode">Supervisor</button>
+        </div>
+
+        <!-- Login Form -->
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="userId">User ID</label>
+                <input type="text" id="userId" name="userId" placeholder="Enter your user ID" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <div id="loginError" class="error-message"></div>
+
+            <button type="submit" class="sign-in-btn agent" id="signInBtn" data-click="Login">Sign In</button>
+        </form>
+
+        <div class="role-indicator">
+            Signing in as <span class="agent" id="roleText">Agent</span>
+        </div>
+    </div>
+    <script type="module" src="../SCRIPTS/GlobalEvents.js"></script>
+    <script type="module" src="../SCRIPTS/Login.js"></script>
+</body>
+
+</html>
