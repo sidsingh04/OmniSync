@@ -1,5 +1,5 @@
 //Short polling for checking websocket health repeatedly on failure with exponential backoff
-import { updateConnectionStatus } from '../SCRIPTS/LIGHTS/ConnectionLights.js';
+import { updateConnectionStatus } from '../scripts/lights/ConnectionLights.js';
 
 let pollTimer = null;
 let controller = null;

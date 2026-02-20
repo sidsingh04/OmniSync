@@ -5,10 +5,10 @@
 import { openDB } from '../INDEXDB/IndexDB.js';
 import { getAgentById, UpdateAgent } from '../INDEXDB/agentService.js';
 import { emitStatusUpdate } from '../WS/agentsocket.js';
-import { stopLongPolling } from '../LONGPOLL/PollService.js';
+import { stopLongPolling } from '../longpoll/PollService.js';
 import { getAgentsOfStatus } from '../INDEXDB/agentService.js';
-import { addToOfflineQueue } from '../QUEUE/OfflineQueue.js';
-import { processOfflineQueue } from '../QUEUE/ProcessEvents.js';
+import { addToOfflineQueue } from '../queue/OfflineQueue.js';
+import { processOfflineQueue } from '../queue/ProcessEvents.js';
 
 
 export function getInitials(name) {

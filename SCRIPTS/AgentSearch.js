@@ -70,7 +70,6 @@ export function filterAgents(agents, searchTerm) {
     return agents.filter(agent => {
         const agentId = String(agent.agentId || '').toLowerCase();
         const agentName = String(agent.name || '').toLowerCase();
-        // Also search department and status if they exist (for AgentsTab)
         const department = String(agent.department || '').toLowerCase();
         const status = String(agent.status || '').toLowerCase();
 
@@ -107,8 +106,7 @@ function searchAgents(searchTerm, resultsContainer, hiddenIdInput, inputElement,
     `).join('');
 
     resultsContainer.style.display = 'block';
-
-    // Add click handlers to search results
+    
     resultsContainer.querySelectorAll('.agent-search-item').forEach(item => {
         if (!item.classList.contains('no-results')) {
             item.addEventListener('click', () => {

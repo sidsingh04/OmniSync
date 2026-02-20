@@ -4,9 +4,9 @@
 
 import { openDB } from '../../INDEXDB/IndexDB.js';
 import { getAllIssues } from '../../INDEXDB/issueService.js';
-import { updateMonthlyIssueChart, initMonthlyIssueChart, destroyMonthlyIssueChart } from '../../CHARTS/MonthlyIssueChart.js';
-import { updateResolvedMonthlyIssueChart, initResolvedMonthlyIssueChart, destroyResolvedMonthlyIssueChart } from '../../CHARTS/MonthlyResolvedChart.js';
-import { errorTypeSet } from '../../STATE/errorState.js';
+import { updateMonthlyIssueChart, initMonthlyIssueChart, destroyMonthlyIssueChart } from '../../charts/MonthlyIssueChart.js';
+import { updateResolvedMonthlyIssueChart, initResolvedMonthlyIssueChart, destroyResolvedMonthlyIssueChart } from '../../charts/MonthlyResolvedChart.js';
+import { errorTypeSet } from '../../state/errorState.js';
 
 export function initAnalyticsTab() {
     console.log('Initializing Analytics Tab...');
@@ -57,7 +57,7 @@ function calculateStats(tickets) {
     let issueTypes = {};
 
     tickets.forEach(ticket => {
-        
+
         if (ticket.status === 'resolved') resolved++;
         if (ticket.status === 'pending') pending++;
         if (ticket.status === 'approval') approvals++;

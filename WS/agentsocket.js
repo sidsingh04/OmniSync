@@ -1,6 +1,6 @@
-import { AgentUI } from '../SCRIPTS/AGENT/AgentUI.js';
-import { updateSyncState } from '../SCRIPTS/SyncBadge.js';
-import { renderNotifications } from '../RENDERER/Agent/AgentRenderer.js';
+import { AgentUI } from '../scripts/agent/AgentUI.js';
+import { updateSyncState } from '../scripts/SyncBadge.js';
+import { renderNotifications } from '../renderer/Agent/AgentRenderer.js';
 import { startWsHealthPolling, stopWsHealthPolling } from './wsHealthPoll.js';
 import { openDB } from '../INDEXDB/IndexDB.js';
 import { addIssues } from '../INDEXDB/issueService.js';
@@ -32,7 +32,7 @@ function connect() {
 
         updateSyncState(document, 'syncing');
 
-        const { processOfflineQueue } = await import('../QUEUE/ProcessEvents.js');
+        const { processOfflineQueue } = await import('../queue/ProcessEvents.js');
         const { openDB } = await import('../INDEXDB/IndexDB.js');
         const db = await openDB();
 

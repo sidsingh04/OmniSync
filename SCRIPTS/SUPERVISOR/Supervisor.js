@@ -6,8 +6,8 @@ import { initTicketsTab } from './TicketsTab.js';
 import { initAgentsTab } from './AgentsTab.js';
 import { initAnalyticsTab } from './AnalyticsTab.js';
 import { initSupervisorSocket } from '../../WS/supervisorsocket.js';
-import { initStatusUpdates, initTicketTabNotifications } from '../../RENDERER/Supervisor/SupervisorNotifications.js';
-import { initConnectionLights } from '../LIGHTS/ConnectionLights.js';
+import { initStatusUpdates, initTicketTabNotifications } from '../../renderer/Supervisor/SupervisorNotifications.js';
+import { initConnectionLights } from '../lights/ConnectionLights.js';
 
 // TAB NAVIGATION
 

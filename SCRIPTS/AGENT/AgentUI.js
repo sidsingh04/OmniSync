@@ -5,12 +5,12 @@ import { openDB } from '../../INDEXDB/IndexDB.js';
 import { getAgentById, UpdateAgent, getAgentsOfStatus } from '../../INDEXDB/agentService.js';
 import { showToast, formatRelativeTime, getInitials } from '../Utils.js';
 import { getIssueByAgentId, getIssueByStatus, updateIssue } from '../../INDEXDB/issueService.js';
-import { renderPendingTickets, renderApprovals, renderHistory, renderAnalytics } from '../../RENDERER/Agent/AgentRenderer.js';
+import { renderPendingTickets, renderApprovals, renderHistory, renderAnalytics } from '../../renderer/Agent/AgentRenderer.js';
 import { emitApproval, closeSocket, emitStatusUpdate } from '../../WS/agentsocket.js';
 import { initMultipartUpload, saveAttachment, resetAttachment } from '../../UPLOAD/upload.js';
-import { processOfflineQueue } from '../../QUEUE/ProcessEvents.js';
-import { addToOfflineQueue } from '../../QUEUE/OfflineQueue.js';
-import { stopLongPolling } from '../../LONGPOLL/PollService.js';
+import { processOfflineQueue } from '../../queue/ProcessEvents.js';
+import { addToOfflineQueue } from '../../queue/OfflineQueue.js';
+import { stopLongPolling } from '../../longpoll/PollService.js';
 
 let agentName = document.getElementById('agentName');
 let agentId = document.getElementById('agentId');

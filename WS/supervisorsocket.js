@@ -1,11 +1,11 @@
-import { updateSyncState } from '../SCRIPTS/SyncBadge.js';
-import { initAgentsTab } from '../SCRIPTS/SUPERVISOR/AgentsTab.js';
-import { loadPendingTickets, loadApprovalData } from '../SCRIPTS/SUPERVISOR/TicketsTab.js';
-import { initAnalyticsTab } from '../SCRIPTS/SUPERVISOR/AnalyticsTab.js';
-import { loadStatusUpdates, renderTicketTabNotifications } from '../RENDERER/Supervisor/SupervisorNotifications.js';
-import { updateActiveCache } from '../STATE/agentState.js';
+import { updateSyncState } from '../scripts/SyncBadge.js';
+import { initAgentsTab } from '../scripts/supervisor/AgentsTab.js';
+import { loadPendingTickets, loadApprovalData } from '../scripts/supervisor/TicketsTab.js';
+import { initAnalyticsTab } from '../scripts/supervisor/AnalyticsTab.js';
+import { loadStatusUpdates, renderTicketTabNotifications } from '../renderer/Supervisor/SupervisorNotifications.js';
+import { updateActiveCache } from '../state/agentState.js';
 import { startWsHealthPolling, stopWsHealthPolling } from './wsHealthPoll.js';
-import { updateConnectionStatus } from '../SCRIPTS/LIGHTS/ConnectionLights.js';
+import { updateConnectionStatus } from '../scripts/lights/ConnectionLights.js';
 
 let socket;
 
@@ -40,7 +40,7 @@ function connect() {
 
         updateSyncState(document, 'syncing');
 
-        const { processOfflineQueue } = await import('../QUEUE/ProcessEvents.js');
+        const { processOfflineQueue } = await import('../queue/ProcessEvents.js');
         const { openDB } = await import('../INDEXDB/IndexDB.js');
         const db = await openDB();
 

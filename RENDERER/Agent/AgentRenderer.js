@@ -1,4 +1,4 @@
-import { formatShortDateTimeIST } from '../../SCRIPTS/Utils.js';
+import { formatShortDateTimeIST } from '../../scripts/Utils.js';
 
 let pendingTicketsList = document.getElementById('pendingTicketsList');
 let pendingCount = document.getElementById('pendingCount');

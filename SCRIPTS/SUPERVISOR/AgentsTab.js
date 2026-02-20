@@ -6,9 +6,9 @@ import { getInitials, capitalizeFirst, debounce } from '../Utils.js';
 import { filterAgents } from '../AgentSearch.js';
 import { getAllAgents, getAgentById } from '../../INDEXDB/agentService.js';
 import { openDB } from '../../INDEXDB/IndexDB.js';
-import { initStatusUpdates } from '../../RENDERER/Supervisor/SupervisorNotifications.js'
-import { errorTypeSet, InitializeErrorSet } from '../../STATE/errorState.js';
-import { activeAgentMap, initializeActiveAgents } from '../../STATE/agentState.js';
+import { initStatusUpdates } from '../../renderer/Supervisor/SupervisorNotifications.js'
+import { errorTypeSet, InitializeErrorSet } from '../../state/errorState.js';
+import { activeAgentMap, initializeActiveAgents } from '../../state/agentState.js';
 // import { emitForceLogout } from '../../WS/supervisorsocket.js';
 
 let agentsData = [];

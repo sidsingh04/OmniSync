@@ -1,6 +1,6 @@
 //Process events from offline queue when online
 import { getOfflineQueue, removeFromOfflineQueue } from "./OfflineQueue.js";
-import { isLongPollHealthy, triggerLongPollEvent } from "../LONGPOLL/PollService.js";
+import { isLongPollHealthy, triggerLongPollEvent } from "../longpoll/PollService.js";
 import { isSocketConnected as isAgentConnected, emitIssueCreated, emitIssueResolved, emitIssueRejected, emitApproval, emitStatusUpdate as emitAgentStatusUpdate, emitPollStarted, emitPollStopped } from "../WS/agentsocket.js";
 import { isSocketConnected as isSupervisorConnected, emitCreated as emitSupervisorCreated, emitResolved as emitSupervisorResolved, emitRejected as emitSupervisorRejected, emitStatusUpdate as emitSupervisorStatusUpdate } from "../WS/supervisorsocket.js";
 

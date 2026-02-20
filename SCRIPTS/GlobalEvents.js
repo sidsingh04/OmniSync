@@ -1,6 +1,6 @@
-import { initializeTheme } from "../THEME/Theme.js";
-import { initDashboard } from "./SUPERVISOR/Supervisor.js";
-// import { AgentUI } from "./AGENT/AgentUI.js";
+import { initializeTheme } from "../theme/Theme.js";
+import { initDashboard } from "./supervisor/Supervisor.js";
+// import { AgentUI } from "./agent/AgentUI.js";
 
 
 window.addEventListener("DOMContentLoaded", () => {

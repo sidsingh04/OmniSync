@@ -17,6 +17,7 @@ export async function initializeActiveAgents(db) {
 }
 
 //I want this to not-call db for maintaining cache.
+//Wired this with socket-events
 export async function updateActiveCache(agentId,agentobj, newStatus) {
 
     let agent = activeAgentMap.get(agentId);
@@ -27,7 +28,6 @@ export async function updateActiveCache(agentId,agentobj, newStatus) {
 
     const oldStatus = agent.status;
     agent.status = newStatus;
-
 
     if (newStatus === "Busy") {
         activeAgentMap.set(agentId, agent);

@@ -1,9 +1,9 @@
-import { forceSignOut, showToast } from '../SCRIPTS/Utils.js';
+import { forceSignOut, showToast } from '../scripts/Utils.js';
 import { openDB } from '../INDEXDB/IndexDB.js';
-import { updateConnectionStatus } from '../SCRIPTS/LIGHTS/ConnectionLights.js';
+import { updateConnectionStatus } from '../scripts/lights/ConnectionLights.js';
 import { emitPollStarted, emitPollStopped } from '../WS/agentsocket.js';
-import { addToOfflineQueue } from '../QUEUE/OfflineQueue.js';
-import { processOfflineQueue } from '../QUEUE/ProcessEvents.js';
+import { addToOfflineQueue } from '../queue/OfflineQueue.js';
+import { processOfflineQueue } from '../queue/ProcessEvents.js';
 
 let isPolling = false;
 let forceLogoutHandled = false;

@@ -1,5 +1,5 @@
 
-import { formatShortDateTimeIST } from '../../SCRIPTS/Utils.js';
+import { formatShortDateTimeIST } from '../../scripts/Utils.js';
 
 // Tickets-Tab notifications:capture ticket events from agent socket
 

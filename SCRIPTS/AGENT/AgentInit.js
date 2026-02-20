@@ -4,13 +4,13 @@
 
 import { AgentUI } from './AgentUI.js';
 import { showToast } from '../Utils.js';
-import { startLongPolling } from '../../LONGPOLL/PollService.js';
-import { initializeTheme } from '../../THEME/Theme.js';
+import { startLongPolling } from '../../longpoll/PollService.js';
+import { initializeTheme } from '../../theme/Theme.js';
 import { openDB } from '../../INDEXDB/IndexDB.js';
 import { getAgentById, UpdateAgent } from '../../INDEXDB/agentService.js';
 import { initAgentSocket, emitStatusUpdate } from '../../WS/agentsocket.js';
-import { addToOfflineQueue } from '../../QUEUE/OfflineQueue.js';
-import { processOfflineQueue } from '../../QUEUE/ProcessEvents.js';
+import { addToOfflineQueue } from '../../queue/OfflineQueue.js';
+import { processOfflineQueue } from '../../queue/ProcessEvents.js';
 
 const initDashboard = async () => {
     try {

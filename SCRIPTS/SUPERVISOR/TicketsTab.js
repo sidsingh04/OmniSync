@@ -7,12 +7,12 @@ import { getAttachment } from '../../UPLOAD/download.js';
 import { openDB } from '../../INDEXDB/IndexDB.js';
 import { addIssues, getIssueByIssueId, getIssueByStatus, updateIssue } from "../../INDEXDB/issueService.js";
 import { getAgentById, UpdateAgent } from "../../INDEXDB/agentService.js";
-import { renderPendingTickets, renderApprovalItems } from '../../RENDERER/Supervisor/TicketsTabRenderer.js';
+import { renderPendingTickets, renderApprovalItems } from '../../renderer/Supervisor/TicketsTabRenderer.js';
 import { initAgentSearch, loadAgentsForSearch, clearAgentSearch } from '../AgentSearch.js';
 import { emitResolved, emitRejected, emitCreated, emitStatusUpdate } from '../../WS/supervisorsocket.js';
-import { errorTypeSet, registerErrorType } from '../../STATE/errorState.js';
-import { addToOfflineQueue } from '../../QUEUE/OfflineQueue.js';
-import { processOfflineQueue } from '../../QUEUE/ProcessEvents.js';
+import { errorTypeSet, registerErrorType } from '../../state/errorState.js';
+import { addToOfflineQueue } from '../../queue/OfflineQueue.js';
+import { processOfflineQueue } from '../../queue/ProcessEvents.js';
 
 // DATA LOADING
 export async function loadPendingTickets() {
@@ -137,7 +137,6 @@ async function viewApprovalDetails(approvalId) {
         const closeBtn = document.getElementById('closeAttachmentModalBtn');
         const attachmentTitle = document.getElementById('attachmentTitle');
 
-        console.log('Modal elements:', { modal, modalBody, closeBtn });
         attachmentTitle.textContent = `Attachment Viewer - ${approvalId}`;
 
         if (!modal || !modalBody) {
@@ -145,7 +144,7 @@ async function viewApprovalDetails(approvalId) {
             return;
         }
 
-        modalBody.innerHTML = ''; 
+        modalBody.innerHTML = '';
         const url = URL.createObjectURL(attachment.blob);
 
         if (attachment.fileType.startsWith('image/')) {
@@ -169,7 +168,7 @@ async function viewApprovalDetails(approvalId) {
         const closeModal = () => {
             modal.classList.remove('active');
             modalBody.innerHTML = '';
-            URL.revokeObjectURL(url); 
+            URL.revokeObjectURL(url);
         };
 
         closeBtn.onclick = closeModal;
