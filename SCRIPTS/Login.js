@@ -1,6 +1,5 @@
 import { openDB } from "../INDEXDB/IndexDB.js";
-import { getAgentById, UpdateAgent } from "../INDEXDB/agentService.js";
-import { getAgentPassword, getSupervisorPassword } from "../INDEXDB/credentialService.js";
+import { agentLogin, supervisorLogin } from "../services/credentials.js";
 
 // Prevent back navigation 
 history.pushState(null, null, location.href);
@@ -79,34 +78,30 @@ async function handleSignIn(event) {
 
         if (currentMode === 'agent') {
             try {
-                let expectedPassword = await getAgentPassword(db, userId);
-                console.log(expectedPassword);
-                if (expectedPassword === password) {
-                    console.log(`Agent ${userId} login Successfully`);
-                    window.location.replace('./Agent.html');
-                    sessionStorage.setItem("userId", userId);
-                    sessionStorage.setItem("Privelege", "agent");
-                } else {
-                    errorEl.textContent = 'Invalid password';
-                }
+                let agent = await agentLogin(userId, password);
+                if (!agent) throw new Error("Invalid credentials");
+               
+                console.log(`Agent ${userId} login Successfully`);
+                window.location.replace('./Agent.html');
+                sessionStorage.setItem("userId", userId);
+                sessionStorage.setItem("Privelege", "agent");
+
             } catch (err) {
                 console.error(err);
-                errorEl.textContent = 'Invalid username';
+                errorEl.textContent = 'Invalid credentials';
             }
         } else {
             try {
-                let expectedPassword = await getSupervisorPassword(db, userId);
-                console.log(expectedPassword);
-                if (expectedPassword === password) {
-                    console.log(`Supervisor ${userId} login Successfully`);
-                    window.location.replace('./Supervisor.html');
-                    sessionStorage.setItem("userId", userId);
-                    sessionStorage.setItem("Privelege", "supervisor");
-                } else {
-                    errorEl.textContent = 'Invalid password';
-                }
+                let supervisor = await supervisorLogin(userId, password);
+                if (!supervisor) throw new Error("Invalid credentials");
+
+                console.log(`Supervisor ${userId} login Successfully`);
+                window.location.replace('./Supervisor.html');
+                sessionStorage.setItem("userId", userId);
+                sessionStorage.setItem("Privelege", "supervisor");
             } catch (err) {
-                errorEl.textContent = 'Invalid username';
+                console.error(err);
+                errorEl.textContent = 'Invalid credentials';
             }
 
         }

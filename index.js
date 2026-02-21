@@ -4,6 +4,11 @@ const path = require("path");
 const http = require("http");
 const setupWebSocket = require("./WS/websocketserver");
 const { setupLongPolling } = require("./longpoll/ServerPollHandler");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +27,8 @@ app.use("/UPLOAD", express.static(path.join(process.cwd(), "UPLOAD")));
 app.use("/longpoll", express.static(path.join(process.cwd(), "longpoll")));
 app.use("/queue", express.static(path.join(process.cwd(), "queue")));
 app.use("/WebWorker", express.static(path.join(process.cwd(), "WebWorker")));
+app.use("/models", express.static(path.join(process.cwd(), "models")));
+app.use("/services", express.static(path.join(process.cwd(), "services")));
 
 // Explicit route for home
 app.get("/", (req, res) => {
@@ -33,6 +40,44 @@ const server = http.createServer(app);
 setupWebSocket(server);
 
 app.use(express.json());
+app.use(cors());
+
+// Login API routes
+app.post("/api/login/agent", async (req, res) => {
+  try {
+    const { agentId, password } = req.body;
+    const { agentCredentials } = require("./models/Credentials");
+    const agent = await agentCredentials.findOne({ agentId, password });
+    if (agent) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("Agent login error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+app.post("/api/login/supervisor", async (req, res) => {
+  try {
+    const { superId, password } = req.body;
+    const { superCredentials } = require("./models/Credentials");
+    const supervisor = await superCredentials.findOne({ superId, password });
+    if (supervisor) {
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("Supervisor login error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
 
 setupLongPolling(app);
 
