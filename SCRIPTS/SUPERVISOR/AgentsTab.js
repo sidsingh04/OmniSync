@@ -203,18 +203,18 @@ async function openAgentDetails(agentId) {
 
     if (resolvedEl) resolvedEl.textContent = agent.totalResolved || 0;
 
-    if (callDurationEl) callDurationEl.textContent = agent.callduration || '0m';
+    if (callDurationEl) callDurationEl.textContent = agent.totalCallDuration || '0m';
 
-    if (successfullCallsEl) successfullCallsEl.textContent = agent.successfullCalls || '0';
+    if (successfullCallsEl) successfullCallsEl.textContent = agent.successfulCalls || '0';
 
-    if (failedCallsEl) failedCallsEl.textContent = agent.failCalls || '0';
+    if (failedCallsEl) failedCallsEl.textContent = agent.failedCalls || '0';
 
     const worker = new Worker('../WebWorker/webworker.js');
 
     worker.postMessage({
         type: 'successRate',
-        success: Number(agent.successfullCalls || 0),
-        fail: Number(agent.failCalls || 0)
+        success: Number(agent.successfulCalls || 0),
+        fail: Number(agent.failedCalls || 0)
     });
 
     worker.onmessage = (e) => {
@@ -255,7 +255,11 @@ export async function initAgentsTab() {
     // Load fresh data
     try {
         const db = await openDB();
-        agentsData = await getAllAgents(db);
+        // agentsData = await getAllAgents(db);
+        agentsData = await fetch('/api/agent/getAllAgents')
+            .then(res => res.json())
+            .then(data => data.agents);
+
         InitializeErrorSet(db);
         initializeActiveAgents(db);
 

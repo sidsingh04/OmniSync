@@ -2,8 +2,6 @@
  Handles logic for the Supervisor Analytics Tab
  */
 
-import { openDB } from '../../INDEXDB/IndexDB.js';
-import { getAllIssues } from '../../INDEXDB/issueService.js';
 import { updateMonthlyIssueChart, initMonthlyIssueChart, destroyMonthlyIssueChart } from '../../charts/MonthlyIssueChart.js';
 import { updateResolvedMonthlyIssueChart, initResolvedMonthlyIssueChart, destroyResolvedMonthlyIssueChart } from '../../charts/MonthlyResolvedChart.js';
 import { errorTypeSet } from '../../state/errorState.js';
@@ -17,14 +15,17 @@ export function initAnalyticsTab() {
     if (analyticsTabBtn) {
         analyticsTabBtn.addEventListener('click', () => {
             loadAnalyticsData();
-        });
+        }, { once: true });
     }
 }
 
 async function loadAnalyticsData() {
     try {
-        const db = await openDB();
-        const tickets = await getAllIssues(db);
+        // const db = await openDB();
+        // const tickets = await getAllIssues(db);
+        let tickets = await fetch('/api/ticket/get-all')
+            .then(res => res.json())
+            .then(data => data.success ? data.tickets : []);
 
         // Calculate stats
         const stats = calculateStats(tickets);

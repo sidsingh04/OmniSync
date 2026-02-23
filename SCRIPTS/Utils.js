@@ -154,14 +154,27 @@ export async function forceSignOut(agentId) {
     if (sessionStorage.getItem('userId') != agentId) {
         return;
     }
+
     const db = await openDB();
-    let agent = await getAgentById(db, agentId);
+    // let agent = await getAgentById(db, agentId);
+    let agent = await fetch('/api/agent/get-agent?agentId=' + agentId)
+        .then(res => res.json())
+        .then(data => data.agent);
+
     if (agent.status == 'Ofline') {
         showToast('info', 'Forced-logout-failed', 'Agent already offline');
         return;
     }
+
     agent.status = 'Offline';
-    await UpdateAgent(db, agent);
+    // await UpdateAgent(db, agent);
+
+    await fetch('/api/agent/update', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(agent)
+    });
+
     //offline-queue for status updates
     await addToOfflineQueue(db, {
         type: 'agent:status_updated',

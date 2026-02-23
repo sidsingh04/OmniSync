@@ -1,5 +1,4 @@
 import { openDB } from "../INDEXDB/IndexDB.js";
-import { agentLogin, supervisorLogin } from "../services/credentials.js";
 
 // Prevent back navigation 
 history.pushState(null, null, location.href);
@@ -78,9 +77,19 @@ async function handleSignIn(event) {
 
         if (currentMode === 'agent') {
             try {
-                let agent = await agentLogin(userId, password);
-                if (!agent) throw new Error("Invalid credentials");
-               
+
+                const response = await fetch("/api/login/agent", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error("Invalid Credentials");
+                }
+
                 console.log(`Agent ${userId} login Successfully`);
                 window.location.replace('./Agent.html');
                 sessionStorage.setItem("userId", userId);
@@ -92,8 +101,18 @@ async function handleSignIn(event) {
             }
         } else {
             try {
-                let supervisor = await supervisorLogin(userId, password);
-                if (!supervisor) throw new Error("Invalid credentials");
+
+                const response = await fetch("/api/login/supervisor", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error("Invalid Credentials");
+                }
 
                 console.log(`Supervisor ${userId} login Successfully`);
                 window.location.replace('./Supervisor.html');

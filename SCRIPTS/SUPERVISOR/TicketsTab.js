@@ -16,8 +16,11 @@ import { processOfflineQueue } from '../../queue/ProcessEvents.js';
 
 // DATA LOADING
 export async function loadPendingTickets() {
-    const db = await openDB();
-    let tickets = await getIssueByStatus(db, "pending");
+    // const db = await openDB();
+    // let tickets = await getIssueByStatus(db, "pending");
+    let response = await fetch(`/api/ticket/get-by-status?status=pending`).then(res => res.json());
+    let tickets = response.success ? response.tickets : [];
+
     const sortedTickets = [...tickets].sort(
         (a, b) => new Date(b.issueDate) - new Date(a.issueDate)
     );
@@ -25,8 +28,11 @@ export async function loadPendingTickets() {
 }
 
 export async function loadApprovalData() {
-    const db = await openDB();
-    let approvals = await getIssueByStatus(db, "approval");
+    // const db = await openDB();
+    // let approvals = await getIssueByStatus(db, "approval");
+    let response = await fetch(`/api/ticket/get-by-status?status=approval`).then(res => res.json());
+    let approvals = response.success ? response.tickets : [];
+
     const sortedApprovals = [...approvals].sort(
         (a, b) => new Date(b.issueDate) - new Date(a.issueDate)
     );
@@ -36,10 +42,10 @@ export async function loadApprovalData() {
 
 // ACTION HANDLERS
 
-function openTicketDetails(ticketId) {
-    console.log('Opening ticket:', ticketId);
-    // TODO: Implement ticket details modal or navigation
-}
+// function openTicketDetails(ticketId) {
+//     console.log('Opening ticket:', ticketId);
+//     // TODO: Implement ticket details modal or navigation
+// }
 
 async function handleApproval(approvalId, action, agentId) {
     console.log(`${action} approval: ${approvalId} for Agent: ${agentId}`);
@@ -47,19 +53,56 @@ async function handleApproval(approvalId, action, agentId) {
     if (action === 'approve') {
 
         //mark-resolved
-        let ticket = await getIssueByIssueId(db, approvalId);
-        let agentobj = await getAgentById(db, ticket.agentId);
+        // let ticket = await getIssueByIssueId(db, approvalId);
+        // let agentobj = await getAgentById(db, ticket.agentId);
+        let ticket = null;
+        let agentobj = null;
+
+        try {
+            const data = await fetch(`/api/ticket/get?issueId=${approvalId}`).then(res => res.json());
+            ticket = data.ticket;
+            const agentData = await fetch(`/api/agent/get-agent?agentId=${ticket.agentId}`).then(res => res.json());
+            agentobj = agentData.agent;
+        } catch (error) {
+            console.error("Error getting ticket:", error);
+            return;
+        }
 
         agentobj.totalResolved += 1;
-        agentobj.successfullCalls += 1;
+        agentobj.successfulCalls += 1;
         agentobj.pendingApprovals -= 1;
         if (agentobj.totalPending == '0') {
             agentobj.status = 'Available';
         }
-        await UpdateAgent(db, agentobj);
+        // await UpdateAgent(db, agentobj);
+        try {
+            await fetch(`/api/agent/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(agentobj)
+            });
+        } catch (error) {
+            console.error("Error updating agent:", error);
+        }
+
         ticket.status = 'resolved';
         ticket.resolvedDate = new Date().toUTCString();
-        await updateIssue(db, ticket);
+
+        try {
+            await fetch(`/api/ticket/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ticket)
+            });
+        } catch (error) {
+            console.error("Error updating ticket:", error);
+        }
+
+        // await updateIssue(db, ticket);
         // emitResolved(approvalId, agentId);
         // emitStatusUpdate(agentId, agentobj.status);
 
@@ -82,16 +125,55 @@ async function handleApproval(approvalId, action, agentId) {
     } else {
 
 
-        let ticket = await getIssueByIssueId(db, approvalId);
-        let agentobj = await getAgentById(db, ticket.agentId);
-        agentobj.failCalls += 1;
+        // let ticket = await getIssueByIssueId(db, approvalId);
+        // let agentobj = await getAgentById(db, ticket.agentId);
+
+        let ticket = null;
+        let agentobj = null;
+
+        try {
+            const data = await fetch(`/api/ticket/get?issueId=${approvalId}`).then(res => res.json());
+            ticket = data.ticket;
+            const agentData = await fetch(`/api/agent/get-agent?agentId=${ticket.agentId}`).then(res => res.json());
+            agentobj = agentData.agent;
+        } catch (error) {
+            console.error("Error getting ticket:", error);
+        }
+
+        agentobj.failedCalls += 1;
         agentobj.pendingApprovals -= 1;
         agentobj.totalPending += 1;
         agentobj.status = 'Busy';
-        await UpdateAgent(db, agentobj);
+
+        // await UpdateAgent(db, agentobj);
+
+        try {
+            await fetch(`/api/agent/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(agentobj)
+            });
+        } catch (error) {
+            console.error("Error updating agent:", error);
+        }
+
         ticket.status = 'pending';
         ticket.approvalDate = null;
-        await updateIssue(db, ticket);
+        // await updateIssue(db, ticket);
+
+        try {
+            await fetch(`/api/ticket/update`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ticket)
+            });
+        } catch (error) {
+            console.error("Error updating ticket:", error);
+        }
 
         // emitRejected(approvalId, agentId);
         // emitStatusUpdate(agentId, agentobj.status);
@@ -292,31 +374,45 @@ async function handleCreateTicket() {
         resolvedDate: null
     };
 
-    // Handle file upload if present
-    // const callRecordingPhoto = formData.get('callRecordingPhoto');
-    // if (callRecordingPhoto && callRecordingPhoto.size > 0) {
-    //     ticketData.callRecordingPhoto = {
-    //         fileName: callRecordingPhoto.name,
-    //         fileSize: callRecordingPhoto.size,
-    //         fileType: callRecordingPhoto.type,
-    //         // In a real application, you would upload the file to a server
-    //         // For now, we'll just store the file metadata
-    //         file: callRecordingPhoto
-    //     };
-    // }
-
     console.log('Creating ticket:', ticketData);
     const db = await openDB();
     registerErrorType(ticketData.code);
-    await addIssues(db, ticketData);
-    let agentobj = await getAgentById(db, ticketData.agentId);
-    agentobj.totalPending += 1;
 
-    // console.log(agentobj);
-    //Update Agent status to Busy
-    //Update Agent status to Busy
-    // emitStatusUpdate(ticketData.agentId, 'Busy', agentobj);
-    // emitCreated(ticketData.issueId, ticketData.agentId);
+    try {
+        await fetch("/api/ticket/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(ticketData)
+        });
+    } catch (error) {
+        console.error('Error creating ticket:', error);
+        showToast('error', 'Error', 'Failed to create ticket.');
+    }
+
+    // await addIssues(db, ticketData);
+    // let agentobj = await getAgentById(db, ticketData.agentId);
+
+    let agentobj = null;
+    try {
+        await fetch('/api/agent/get-agent?agentId=' + ticketData.agentId, {
+            method: 'get',
+            headers: { 'Content-Type': 'application/json' }
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                agentobj = data.agent;
+                console.log('Agent Data:', agentobj);
+            } else {
+                console.error('Failed to fetch agent data:', data.message);
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching agent data:', error);
+        showToast('error', 'Error', 'Failed to fetch agent data.');
+    }
+
+    agentobj.totalPending += 1;
 
     addToOfflineQueue(db, {
         type: 'agent:status_updated',
@@ -335,7 +431,23 @@ async function handleCreateTicket() {
     }).then(() => processOfflineQueue(db));
 
     agentobj.status = 'Busy';
-    await UpdateAgent(db, agentobj);
+    // await UpdateAgent(db, agentobj);
+    try {
+        await fetch('/api/agent/update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(agentobj)
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                console.log('Agent updated successfully');
+            } else {
+                console.error('Failed to update agent:', data.message);
+            }
+        });
+    } catch (error) {
+        console.error('Error updating agent:', error);
+        showToast('error', 'Error', 'Failed to update agent.');
+    }
 
     showToast('success', 'Ticket Created Successfully', `Ticket #${ticketData.issueId} has been raised`);
     closeModal();

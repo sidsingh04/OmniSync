@@ -26,13 +26,47 @@ const initDashboard = async () => {
         initializeTheme();
         initAgentSocket();
         const db = await openDB();
-        let agentobj = await getAgentById(db, sessionStorage.getItem('userId'));
+        // let agentobj = await getAgentById(db, sessionStorage.getItem('userId'));
+
+        let userId = sessionStorage.getItem('userId');
+        let agentobj = null;
+
+        try {
+            await fetch('/api/agent/get-agent?agentId=' + userId, {
+                method: 'get',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    agentobj = data.agent;
+                    console.log('Agent Data:', agentobj);
+                } else {
+                    console.error('Failed to fetch agent data:', data.message);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching agent data:', error);
+        }
+
         if (agentobj.totalPending == '0') {
             agentobj.status = 'Available';
         } else {
             agentobj.status = 'Busy';
         }
-        await UpdateAgent(db, agentobj);
+
+        // await UpdateAgent(db, agentobj);
+
+        await fetch('/api/agent/update-status', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agentId: userId, status: agentobj.status })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                console.log('Agent Data Updated:', data);
+            } else {
+                console.error('Failed to update agent data:', data.message);
+            }
+        });
+
         AgentUI.init();
         startLongPolling(agentobj.agentId);
 

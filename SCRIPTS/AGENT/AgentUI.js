@@ -50,7 +50,22 @@ export const AgentUI = {
 
             const db = await openDB();
             let userId = sessionStorage.getItem('userId');
-            let agent = await getAgentById(db, userId);
+            let agent = null;
+            try {
+                await fetch('/api/agent/get-agent?agentId=' + userId, {
+                    method: 'get',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        agent = data.agent;
+                    }
+                });
+            }
+            catch (e) {
+                console.log("Agent-Status not fetched from DB");
+            }
+
+            // let agent = await getAgentById(db, userId);
             if (agent.status === 'Break') {
                 showToast('error', 'Action Restricted', 'You cannot sign out while on break.');
                 return;
@@ -61,7 +76,7 @@ export const AgentUI = {
 
             agent.status = 'Offline';
             signingout = true;
-            await UpdateAgent(db, agent);
+            // await UpdateAgent(db, agent);
 
             addToOfflineQueue(db, {
                 type: 'agent:status_updated',
@@ -81,6 +96,14 @@ export const AgentUI = {
                     stopLongPolling();
                 }
             });
+
+            try {
+                await fetch('/api/agent/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId: userId, status: 'Offline' })
+                });
+            } catch (e) { console.error("MongoDB update failed", e); }
 
 
             showToast('info', 'Signing Out', 'Goodbye!');
@@ -182,9 +205,47 @@ export const AgentUI = {
                 try {
                     const db = await openDB();
                     //for getting the required ticket we can direct query on the issueId and save some-time.
-                    let tickets = await getIssueByAgentId(db, sessionStorage.getItem('userId'));
-                    let agent = await getAgentById(db, sessionStorage.getItem('userId'));
-                    agent.callduration += parseInt(duration, 10);
+                    // let tickets = await getIssueByAgentId(db, sessionStorage.getItem('userId'));
+                    // let agent = await getAgentById(db, sessionStorage.getItem('userId'));
+
+                    let tickets = null;
+
+                    try {
+                        const response = await fetch(`/api/ticket/get-by-agentId?agentId=${sessionStorage.getItem('userId')}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        const data = await response.json();
+                        tickets = data.success ? data.tickets : [];
+                    }
+                    catch (error) {
+                        console.error("Error getting tickets:", error);
+                        return;
+                    }
+
+                    let agent = null;
+                    try {
+                        const response = await fetch(`/api/agent/get-agent?agentId=${sessionStorage.getItem('userId')}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        const data = await response.json();
+                        agent = data.success ? data.agent : null;
+
+                        if (!agent) {
+                            console.error("Agent not found in database payload");
+                            return;
+                        }
+                    } catch (error) {
+                        console.error("Error getting agent:", error);
+                        return;
+                    }
+
+                    agent.totalCallDuration += parseInt(duration, 10);
                     let ticket = tickets.find(t => t.issueId === ticketId);
 
                     if (ticket) {
@@ -208,11 +269,36 @@ export const AgentUI = {
                             });
                         }
 
-                        await updateIssue(db, ticket);
+                        // await updateIssue(db, ticket);
+                        try {
+                            await fetch('/api/ticket/update', {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(ticket)
+                            });
+                        }
+                        catch (error) {
+                            console.error("Error updating ticket:", error);
+                            return;
+                        }
 
                         await saveAttachment(ticketId, sessionStorage.getItem('userId'));
 
-                        await UpdateAgent(db, agent);
+                        // await UpdateAgent(db, agent);
+                        try {
+                            await fetch('/api/agent/update', {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(agent)
+                            });
+                        } catch (error) {
+                            console.error("Error updating agent:", error);
+                            return;
+                        }
 
                         // emitApproval(ticketId, sessionStorage.getItem('userId')); 
 
@@ -244,8 +330,16 @@ export const AgentUI = {
 
     async renderAgentInfo() {
         const agentid = sessionStorage.getItem('userId');
-        const db = await openDB();
-        const agent = await getAgentById(db, agentid);
+        // const db = await openDB();
+        // const agent = await getAgentById(db, agentid);
+        let agent = await fetch('/api/agent/get-agent?agentId=' + agentid)
+            .then(res => res.json())
+            .then(data => data.agent);
+
+        if (!agent) {
+            console.error("Agent not found in database payload");
+            return;
+        }
         agentName.textContent = agent.name;
         agentId.textContent = `ID: ${agentid}`;
         agentInitials.textContent = getInitials(agent.name);
@@ -266,15 +360,26 @@ export const AgentUI = {
     async toggleBreak() {
         const db = await openDB();
         const userId = sessionStorage.getItem('userId');
-        let agent = await getAgentById(db, userId);
+
+        let agent = await fetch('/api/agent/get-agent?agentId=' + userId)
+            .then(res => res.json())
+            .then(data => data.agent);
 
         if (agent.status !== 'Break') {
             // Start Break
             agent.status = 'Break';
-            await UpdateAgent(db, agent);
+
+            try {
+                await fetch('/api/agent/update', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agent)
+                });
+            } catch (e) { console.error("MongoDB update failed", e); }
 
             agentStatus.textContent = 'Break';
             breakBtn.innerHTML = '<i class="fas fa-play"></i> End Break';
+            breakBtn.classList.add('active');
 
             addToOfflineQueue(db, {
                 type: 'agent:status_updated',
@@ -283,41 +388,38 @@ export const AgentUI = {
                 agentobj: agent
             }).then(() => processOfflineQueue(db));
 
-            // emitStatusUpdate(userId, 'Break'); // Removed direct emit
-
             showToast('info', 'On Break', 'You are now on break.');
         } else {
-            let tickets = await getIssueByAgentId(db, userId);
-            let pendingTickets = tickets.filter(ticket => ticket.status === 'pending'); // Using 'pending' status check
+            let tickets = await fetch('/api/ticket/get-by-agentId?agentId=' + userId)
+                .then(res => res.json())
+                .then(data => data.tickets);
+
+            let pendingTickets = tickets.filter(ticket => ticket.status === 'pending');
 
             if (pendingTickets.length > 0) {
                 agent.status = 'Busy';
-
-                addToOfflineQueue(db, {
-                    type: 'agent:status_updated',
-                    agentId: userId,
-                    status: 'Busy',
-                    agentobj: agent
-                }).then(() => processOfflineQueue(db));
-
-                // emitStatusUpdate(userId, 'Busy'); // Removed direct emit
             } else {
                 agent.status = 'Available';
-
-                addToOfflineQueue(db, {
-                    type: 'agent:status_updated',
-                    agentId: userId,
-                    status: 'Available',
-                    agentobj: agent
-                }).then(() => processOfflineQueue(db));
-
-                // emitStatusUpdate(userId, 'Available'); // Removed direct emit
             }
 
-            await UpdateAgent(db, agent);
+            try {
+                await fetch('/api/agent/update', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agent)
+                });
+            } catch (e) { console.error("MongoDB update failed", e); }
+
+            addToOfflineQueue(db, {
+                type: 'agent:status_updated',
+                agentId: userId,
+                status: agent.status,
+                agentobj: agent
+            }).then(() => processOfflineQueue(db));
 
             agentStatus.textContent = agent.status;
             breakBtn.innerHTML = '<i class="fas fa-coffee"></i> Take Break';
+            breakBtn.classList.remove('active');
             showToast('success', 'Back Online', `You are now ${agent.status}.`);
         }
     },
@@ -325,7 +427,10 @@ export const AgentUI = {
     async openTicketModal(ticketId) {
         const db = await openDB();
         const agentId = sessionStorage.getItem('userId');
-        let tickets = await getIssueByAgentId(db, agentId);
+        let tickets = await fetch('/api/ticket/get-by-agentId?agentId=' + agentId)
+            .then(res => res.json())
+            .then(data => data.tickets);
+
         let ticket = tickets.find(t => t.issueId === ticketId);
 
         if (ticket) {
@@ -351,10 +456,24 @@ export const AgentUI = {
 
     async loadDashboardData() {
         // Load Pending Tickets
-        const db = await openDB();
+        // const db = await openDB();
         const agentId = sessionStorage.getItem('userId');
-        let agent = await getAgentById(db, agentId);
-        let tickets = await getIssueByAgentId(db, agentId);
+        // let agent = await getAgentById(db, agentId);
+        // let tickets = await getIssueByAgentId(db, agentId);
+        let agent = null;
+        let tickets = null;
+        try {
+            agent = await fetch('/api/agent/get-agent?agentId=' + agentId)
+                .then(res => res.json())
+                .then(data => data.agent);
+
+            tickets = await fetch('/api/ticket/get-by-agentId?agentId=' + agentId)
+                .then(res => res.json())
+                .then(data => data.tickets);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+        }
+
         agentStatus.textContent = agent.status;
 
         let pendingTickets = tickets.filter(ticket => ticket.status === 'pending');

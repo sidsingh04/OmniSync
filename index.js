@@ -42,44 +42,25 @@ setupWebSocket(server);
 app.use(express.json());
 app.use(cors());
 
-// Login API routes
-app.post("/api/login/agent", async (req, res) => {
-  try {
-    const { agentId, password } = req.body;
-    const { agentCredentials } = require("./models/Credentials");
-    const agent = await agentCredentials.findOne({ agentId, password });
-    if (agent) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.error("Agent login error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
-
-app.post("/api/login/supervisor", async (req, res) => {
-  try {
-    const { superId, password } = req.body;
-    const { superCredentials } = require("./models/Credentials");
-    const supervisor = await superCredentials.findOne({ superId, password });
-    if (supervisor) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } catch (error) {
-    console.error("Supervisor login error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
-
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 5000,
+})
   .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err.message);
+    // process.exit(1);
+  });
 
 setupLongPolling(app);
+
+const authRoutes = require("./routes/authRoutes.js");
+app.use("/api/login", authRoutes);
+
+const agentRoutes = require("./routes/agentRoutes.js");
+app.use("/api/agent", agentRoutes);
+
+const ticketRoutes = require("./routes/ticketRoutes.js");
+app.use("/api/ticket", ticketRoutes);
 
 server.listen(PORT, () => {
   console.log(`HTTP server running at http://localhost:${PORT}`);
